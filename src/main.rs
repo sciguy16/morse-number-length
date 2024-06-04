@@ -1,9 +1,7 @@
-use plotters::prelude::*;
 use std::collections::HashMap;
 
 const MIN_NUMBER: u32 = 0;
 const MAX_NUMBER: u32 = 100_000_000;
-const FILE_NAME: &str = "plot.png";
 
 fn num_digits(number: u32) -> usize {
     (number as f64).log10().floor() as usize + 1
@@ -62,64 +60,10 @@ fn main() {
         let symbols = num_morse_code_symbols(number);
         let (string, words) = length_as_string(number, &letter_lengths);
 
-        // symbols_list.push(symbols);
-        // strings_list.push(string);
-
         if symbols > string {
             println!("number: {number} symbols: {symbols}, string: {string}, {words}");
         }
     }
-
-    // println!("numbers: {}", symbols_list.len());
-
-    // plot(&symbols_list, &strings_list).unwrap();
-}
-
-#[allow(unused)]
-fn plot(symbols: &[usize], strings: &[usize]) -> Result<(), Box<dyn std::error::Error>> {
-    let root_area = BitMapBackend::new(FILE_NAME, (2560, 1440)).into_drawing_area();
-
-    root_area.fill(&WHITE)?;
-
-    let root_area = root_area.titled("Morse number lengths", ("sans-serif", 60))?;
-
-    let xrange = 0.0_f32..(MAX_NUMBER as f32);
-    let yrange = 0.0_f32..(*symbols.iter().chain(strings).max().unwrap() as f32);
-
-    let mut cc = ChartBuilder::on(&root_area)
-        .margin(5)
-        .set_all_label_area_size(50)
-        .build_cartesian_2d(xrange, yrange)?;
-
-    cc.configure_mesh()
-        .x_labels(20)
-        .y_labels(10)
-        .disable_mesh()
-        .x_label_formatter(&|v| format!("{:.1}", v))
-        .y_label_formatter(&|v| format!("{:.1}", v))
-        .draw()?;
-
-    cc.draw_series(LineSeries::new(
-        symbols
-            .iter()
-            .enumerate()
-            .map(|(x, y)| (x as f32, *y as f32)),
-        &RED,
-    ))?
-    .label("symbols")
-    .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], RED));
-
-    cc.draw_series(LineSeries::new(
-        strings
-            .iter()
-            .enumerate()
-            .map(|(x, y)| (x as f32, *y as f32)),
-        &BLUE,
-    ))?
-    .label("symbols")
-    .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], BLUE));
-
-    Ok(())
 }
 
 #[cfg(test)]
