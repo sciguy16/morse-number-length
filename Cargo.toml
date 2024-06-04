@@ -1,0 +1,8 @@
+[package]
+name = "morse-number-length"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+number_to_words = { git = "https://github.com/sciguy16/rust-number-to-words" }
+plotters = "0.3.6"
