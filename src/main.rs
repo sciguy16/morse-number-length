@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use rayon::prelude::*;
+use std::{collections::HashMap, time::Instant};
 
 const MIN_NUMBER: u32 = 0;
 const MAX_NUMBER: u32 = 100_000_000;
@@ -22,9 +23,7 @@ fn length_as_string(number: u32, lengths: &HashMap<char, usize>) -> (usize, Stri
 }
 
 fn main() {
-    // let mut symbols_list = Vec::with_capacity(MAX_NUMBER as usize);
-    // let mut strings_list = Vec::with_capacity(MAX_NUMBER as usize);
-
+    // Number of morse boops for each letter
     let letter_lengths = [
         ('a', 2),
         ('b', 4),
@@ -56,14 +55,21 @@ fn main() {
     .into_iter()
     .collect::<HashMap<_, _>>();
 
-    for number in MIN_NUMBER..=MAX_NUMBER {
-        let symbols = num_morse_code_symbols(number);
-        let (string, words) = length_as_string(number, &letter_lengths);
+    let start = Instant::now();
 
-        if symbols > string {
-            println!("number: {number} symbols: {symbols}, string: {string}, {words}");
-        }
-    }
+    (MIN_NUMBER..MAX_NUMBER + 1)
+        .into_par_iter()
+        .for_each(|number| {
+            let symbols = num_morse_code_symbols(number);
+            let (string, words) = length_as_string(number, &letter_lengths);
+
+            if symbols > string {
+                println!("number: {number} symbols: {symbols}, string: {string}, {words}");
+            }
+        });
+
+    let elapsed = start.elapsed();
+    println!("Completed in {} seconds", elapsed.as_secs());
 }
 
 #[cfg(test)]
