@@ -2,7 +2,7 @@ use rayon::prelude::*;
 use std::{collections::HashMap, time::Instant};
 
 const MIN_NUMBER: u32 = 0;
-const MAX_NUMBER: u32 = 100_000_000;
+const MAX_NUMBER: u32 = 200_000_000;
 
 fn num_digits(number: u32) -> usize {
     (number as f64).log10().floor() as usize + 1
@@ -57,19 +57,33 @@ fn main() {
 
     let start = Instant::now();
 
-    (MIN_NUMBER..MAX_NUMBER + 1)
+    let winning = (MIN_NUMBER..MAX_NUMBER + 1)
         .into_par_iter()
-        .for_each(|number| {
+        .filter_map(|number| {
             let symbols = num_morse_code_symbols(number);
             let (string, words) = length_as_string(number, &letter_lengths);
 
             if symbols > string {
-                println!("number: {number} symbols: {symbols}, string: {string}, {words}");
+                Some((number, symbols, string, words))
+            } else {
+                None
             }
-        });
+        })
+        .collect::<Vec<_>>();
 
     let elapsed = start.elapsed();
-    println!("Completed in {} seconds", elapsed.as_secs());
+
+    for (number, symbols, string, words) in &winning {
+        println!(
+            "number: {} symbols: {}, string: {}, {}",
+            number, symbols, string, words,
+        );
+    }
+    println!(
+        "Found {} winners in {} seconds",
+        winning.len(),
+        elapsed.as_secs()
+    );
 }
 
 #[cfg(test)]
